@@ -1,65 +1,103 @@
+import AnimationStates.*
+import States.Default
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
-import java.awt.Robot
-import java.awt.Toolkit
-import java.awt.datatransfer.StringSelection
-import java.awt.event.KeyEvent
+import kotlinx.coroutines.launch
 
 class MainViewModel {
-    private val robot = Robot()
+    private val model = MainModel()
+    private lateinit var workingJob: Job
+    private val mainScope = MainScope()
 
-    var completedTimes by mutableStateOf(0L)
-        private set
+    var state by mutableStateOf(Default)
+    var animationState by mutableStateOf(Waiting)
+    var isCanceledButton by mutableStateOf(false)
+    var isUnlimitedSpamming by mutableStateOf(false)
+    var isProgressFull by mutableStateOf(false)
 
-    private fun spamOnce(){
-        robot.keyPress(KeyEvent.VK_CONTROL)
-        robot.keyPress(KeyEvent.VK_V)
-        robot.keyRelease(KeyEvent.VK_V)
-        robot.keyRelease(KeyEvent.VK_CONTROL)
-        robot.keyPress(KeyEvent.VK_ENTER)
-        robot.keyRelease(KeyEvent.VK_ENTER)
+    var intervalString by mutableStateOf("")
+    var maxTimesString by mutableStateOf("")
+    var spamText by mutableStateOf("")
+
+    var isIntervalError by mutableStateOf(false)
+    var isMaxTimesError by mutableStateOf(false)
+
+    val completedTimes get() = model.completedTimes
+
+    private fun textInput(): Boolean {
+        isIntervalError = try {
+            false
+        } catch (e: NumberFormatException) {
+            true
+        }
+        isMaxTimesError = try {
+            false
+        } catch (e: NumberFormatException) {
+            true
+        }
+
+        return !(isIntervalError || isMaxTimesError)
     }
 
-    suspend fun spam(interval: Long, maxTimes: Long) = withContext(Dispatchers.Default)
-    {
-        completedTimes = 0
+    private suspend fun resetProgress() {
+        animationState = ResettingProgress
+        isProgressFull = false
+        delay(MainResources.resettingProgressDuration.toLong())
+    }
 
-        for (i in 1..maxTimes) {
-            if (interval == 0L && !isActive) {
-                return@withContext
-            } else {
-                delay(interval)
-            }
-
-            spamOnce()
-            completedTimes = i
+    fun cancel() {
+        mainScope.launch {
+            workingJob.cancel()
+            resetProgress()
+            state = Default
+            isCanceledButton = false
         }
     }
 
-    suspend fun spam(interval: Long) = withContext(Dispatchers.Default)
-    {
-        completedTimes = 0
+    private suspend fun wait() {
+        state = States.Waiting
+        isCanceledButton = true
+        animationState = Waiting
+        isProgressFull = true
+        delay(MainResources.waitingDuration.toLong())
 
-        while (true) {
-            if (interval == 0L && !isActive) {
-                return@withContext
-            } else {
-                delay(interval)
-            }
+        resetProgress()
+    }
 
-            spamOnce()
-            completedTimes++
+    private suspend fun spam() {
+        val interval = model.convertIntervalString(intervalString)
+
+        if (spamText != "") {
+            val maxTime = model.convertMaxTimesString(maxTimesString)
+
+            model.copy(spamText)
+            animationState = Spamming
+            isProgressFull = true
+            model.spam(interval, maxTime)
+
+            resetProgress()
+        } else {
+            isUnlimitedSpamming = true
+            model.spam(interval)
         }
     }
 
-    fun convertIntervalString(interval: String) = (interval.toFloat() * 1000).toLong()
+    fun start() {
+        workingJob = mainScope.launch {
+            if (!textInput()) {
+                return@launch
+            }
 
-    fun convertMaxTimesString(maxTimes: String) = maxTimes.toLong()
+            wait()
+            spam()
+        }
+    }
 
-    fun copy(text: String) = Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(text), null)
+    fun interval() = model.convertIntervalString(intervalString)
+
+    fun maxTimes() = model.convertMaxTimesString(maxTimesString)
 }
