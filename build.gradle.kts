@@ -1,4 +1,4 @@
-//import org.jetbrains.compose.compose
+import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -22,14 +22,14 @@ kotlin {
         }
         withJava()
     }
-//    sourceSets {
-//        val jvmMain by getting {
-//            dependencies {
-//                implementation(compose.desktop.currentOs)
-//            }
-//        }
-//        val jvmTest by getting
-//    }
+    sourceSets {
+        val jvmMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+            }
+        }
+        val jvmTest by getting
+    }
 }
 
 compose.desktop {

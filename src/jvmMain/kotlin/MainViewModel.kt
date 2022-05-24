@@ -14,8 +14,6 @@ class MainViewModel {
     private lateinit var workingJob: Job
     private val mainScope = MainScope()
 
-    var isUnlimitedSpamming by mutableStateOf(false)
-        private set
     val completedTimes get() = model.completedTimes
 
     var spamOptionsString by mutableStateOf(SpamOptionsString())
@@ -58,7 +56,6 @@ class MainViewModel {
     fun cancel() {
         mainScope.launch {
             workingJob.cancel()
-            isUnlimitedSpamming = false
             uiStates = UiStates(animationState = ResettingProgress)
         }
     }
@@ -86,10 +83,9 @@ class MainViewModel {
             uiStates = uiStates.copy(state = States.Spamming, animationState = Spamming, isProgressFull = true)
             model.spam(interval, maxTime)
 
-            uiStates = UiStates(animationState = ResettingProgress)
+            uiStates = UiStates(animationState = ResettingProgress, isTextFieldsEnabled = true)
         } else {
-            isUnlimitedSpamming = true
-            uiStates = uiStates.copy(state = UnlimitedSpamming)
+            uiStates = uiStates.copy(state = UnlimitedSpamming, isUnlimitedSpamming = true)
             model.spam(interval)
         }
     }
@@ -100,6 +96,8 @@ class MainViewModel {
             if (errors.isIntervalError || errors.isMaxTimesError) {
                 return@launch
             }
+
+            uiStates = uiStates.copy(isTextFieldsEnabled = false)
 
             wait()
             spam()
