@@ -1,8 +1,9 @@
-import AnimationStates.*
-import States.Default
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import dataClasses.*
+import dataClasses.AnimationStates.*
+import dataClasses.States.UnlimitedSpamming
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
@@ -13,91 +14,98 @@ class MainViewModel {
     private lateinit var workingJob: Job
     private val mainScope = MainScope()
 
-    var state by mutableStateOf(Default)
-    var animationState by mutableStateOf(Waiting)
-    var isCanceledButton by mutableStateOf(false)
     var isUnlimitedSpamming by mutableStateOf(false)
-    var isProgressFull by mutableStateOf(false)
-
-    var intervalString by mutableStateOf("")
-    var maxTimesString by mutableStateOf("")
-    var spamText by mutableStateOf("")
-
-    var isIntervalError by mutableStateOf(false)
-    var isMaxTimesError by mutableStateOf(false)
-
+        private set
     val completedTimes get() = model.completedTimes
 
-    private fun textInput(): Boolean {
-        isIntervalError = try {
-            false
-        } catch (e: NumberFormatException) {
-            true
-        }
-        isMaxTimesError = try {
-            false
-        } catch (e: NumberFormatException) {
-            true
-        }
+    var spamOptionsString by mutableStateOf(SpamOptionsString())
+    var uiStates by mutableStateOf(UiStates())
+        private set
+    var errors by mutableStateOf(Errors())
+        private set
 
-        return !(isIntervalError || isMaxTimesError)
+    private fun interval() = model.convertIntervalString(spamOptionsString.intervalString)
+
+    private fun maxTimes() = model.convertMaxTimesString(spamOptionsString.maxTimesString)
+
+    fun spamOptions() = SpamOptions(interval(), maxTimes())
+
+    private fun textInput() {
+        val isIntervalError = try {
+            interval()
+            false
+        } catch (e: NumberFormatException) {
+            true
+        }
+        val isMaxTimesError =
+            if (spamOptionsString.maxTimesString == "")
+                false else
+                try {
+                    maxTimes()
+                    false
+                } catch (e: NumberFormatException) {
+                    true
+                }
+
+        errors = errors.copy(isIntervalError = isIntervalError, isMaxTimesError = isMaxTimesError)
     }
 
     private suspend fun resetProgress() {
-        animationState = ResettingProgress
-        isProgressFull = false
+        uiStates = uiStates.copy(animationState = ResettingProgress, isProgressFull = false)
         delay(MainResources.resettingProgressDuration.toLong())
     }
 
     fun cancel() {
         mainScope.launch {
             workingJob.cancel()
-            resetProgress()
-            state = Default
-            isCanceledButton = false
+            isUnlimitedSpamming = false
+            uiStates = UiStates(animationState = ResettingProgress)
         }
     }
 
     private suspend fun wait() {
-        state = States.Waiting
-        isCanceledButton = true
-        animationState = Waiting
-        isProgressFull = true
+        uiStates = uiStates.copy(
+            state = States.Waiting,
+            isCanceledButton = true,
+            animationState = Waiting,
+            isProgressFull = true
+        )
         delay(MainResources.waitingDuration.toLong())
-
         resetProgress()
     }
 
     private suspend fun spam() {
-        val interval = model.convertIntervalString(intervalString)
+        val interval = interval()
 
-        if (spamText != "") {
-            val maxTime = model.convertMaxTimesString(maxTimesString)
+        if (spamOptionsString.spamText != "") {
+            model.copy(spamOptionsString.spamText)
+        }
+        if (spamOptionsString.maxTimesString != "") {
+            val maxTime = model.convertMaxTimesString(spamOptionsString.maxTimesString)
 
-            model.copy(spamText)
-            animationState = Spamming
-            isProgressFull = true
+            uiStates = uiStates.copy(state = States.Spamming, animationState = Spamming, isProgressFull = true)
             model.spam(interval, maxTime)
 
-            resetProgress()
+            uiStates = UiStates(animationState = ResettingProgress)
         } else {
             isUnlimitedSpamming = true
+            uiStates = uiStates.copy(state = UnlimitedSpamming)
             model.spam(interval)
         }
     }
 
     fun start() {
         workingJob = mainScope.launch {
-            if (!textInput()) {
+            textInput()
+            if (errors.isIntervalError || errors.isMaxTimesError) {
                 return@launch
             }
 
             wait()
             spam()
         }
+        mainScope.launch {
+            model.checkMousePosition(cancel = ::cancel)
+        }
     }
-
-    fun interval() = model.convertIntervalString(intervalString)
-
-    fun maxTimes() = model.convertMaxTimesString(maxTimesString)
 }

@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
+import java.awt.MouseInfo
 import java.awt.Robot
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
@@ -25,31 +26,31 @@ class MainModel {
         robot.keyRelease(KeyEvent.VK_ENTER)
     }
 
-    suspend fun spam(interval: Long, maxTimes: Long) = withContext(Dispatchers.Default)
+    suspend fun spam(interval: ULong, maxTimes: ULong) = withContext(Dispatchers.Default)
     {
         completedTimes = 0
 
-        for (i in 1..maxTimes) {
-            if (interval == 0L && !isActive) {
+        for (i in 1..maxTimes.toInt()) {
+            if (interval == 0UL && !isActive) {
                 return@withContext
             } else {
-                delay(interval)
+                delay(interval.toLong())
             }
 
             spamOnce()
-            completedTimes = i
+            completedTimes = i.toLong()
         }
     }
 
-    suspend fun spam(interval: Long) = withContext(Dispatchers.Default)
+    suspend fun spam(interval: ULong) = withContext(Dispatchers.Default)
     {
         completedTimes = 0
 
         while (true) {
-            if (interval == 0L && !isActive) {
+            if (interval == 0UL && !isActive) {
                 return@withContext
             } else {
-                delay(interval)
+                delay(interval.toLong())
             }
 
             spamOnce()
@@ -57,9 +58,26 @@ class MainModel {
         }
     }
 
-    fun convertIntervalString(interval: String) = (interval.toFloat() * 1000).toLong()
+    suspend fun checkMousePosition(cancel: () -> Unit) {
+        while (true) {
+            val mousePosition = MouseInfo.getPointerInfo().location
+            if (mousePosition.x == 0 && mousePosition.y == 0) {
+                cancel()
+                return
+            }
+            delay(500L)
+        }
+    }
 
-    fun convertMaxTimesString(maxTimes: String) = maxTimes.toLong()
+    fun convertIntervalString(intervalString: String) = (intervalString.toFloat() * 1000).toULong()
+
+    fun convertMaxTimesString(maxTimesString: String): ULong {
+        val maxTimes = maxTimesString.toULong()
+        if (maxTimes == 0UL) {
+            throw java.lang.NumberFormatException()
+        }
+        return maxTimes
+    }
 
     fun copy(text: String) = Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(text), null)
 }
