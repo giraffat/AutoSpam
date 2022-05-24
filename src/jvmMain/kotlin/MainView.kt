@@ -1,4 +1,5 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -7,6 +8,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
@@ -19,7 +22,7 @@ object MainView {
     @Preview
     fun App() {
         MaterialTheme {
-            Column {
+            Column(modifier = Modifier.background(Color(236, 239, 241))) {
                 Divider(thickness = 2.dp)
 
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -28,13 +31,14 @@ object MainView {
                     MainViewWidgets.SpamOptionsSetter(
                         modifier = Modifier.weight(1f),
                         errors = viewModel.errors,
+                        isEnabled = viewModel.uiStates.isTextFieldsEnabled,
                         spamOptionsString = viewModel.spamOptionsString,
                         onSpamOptionsStringChange = { viewModel.spamOptionsString = it })
                     MainViewWidgets.SpamController(
-                        isUnlimitedSpamming = viewModel.isUnlimitedSpamming,
                         uiStates = viewModel.uiStates,
                         getSpamOptions = viewModel::spamOptions,
                         completedTimes = viewModel.completedTimes,
+                        openSummaryInBrowser = viewModel::openSummaryInBrowser,
                         onStartButtonClick = viewModel::start,
                         onCancelButtonClick = viewModel::cancel
                     )
@@ -50,6 +54,7 @@ fun main() = application {
         alwaysOnTop = true,
         resizable = false,
         title = "自动刷屏",
+        icon = painterResource("icon.svg"),
         state = WindowState(height = 500.dp, width = 500.dp)
     ) {
         MainView.App()

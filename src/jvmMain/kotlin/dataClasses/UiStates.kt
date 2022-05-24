@@ -4,5 +4,7 @@ data class UiStates(
     val state: States = States.Default,
     val animationState: AnimationStates = AnimationStates.Waiting,
     val isCanceledButton: Boolean = false,
-    val isProgressFull: Boolean = false
+    val isProgressFull: Boolean = false,
+    val isUnlimitedSpamming: Boolean = false,
+    val isTextFieldsEnabled: Boolean = true
 )

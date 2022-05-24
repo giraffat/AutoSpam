@@ -1,4 +1,4 @@
-//import org.jetbrains.compose.compose
+import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -22,21 +22,21 @@ kotlin {
         }
         withJava()
     }
-//    sourceSets {
-//        val jvmMain by getting {
-//            dependencies {
-//                implementation(compose.desktop.currentOs)
-//            }
-//        }
-//        val jvmTest by getting
-//    }
+    sourceSets {
+        val jvmMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+            }
+        }
+        val jvmTest by getting
+    }
 }
 
 compose.desktop {
     application {
         mainClass = "MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "AutoSpamCompose"
             packageVersion = "1.0.0"
         }
