@@ -8,6 +8,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.awt.Desktop
+import java.net.URI
 
 class MainViewModel {
     private val model = MainModel()
@@ -104,6 +106,12 @@ class MainViewModel {
         }
         mainScope.launch {
             model.checkMousePosition(cancel = ::cancel)
+        }
+    }
+
+    fun openSummaryInBrowser(){
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            Desktop.getDesktop().browse(URI(MainResources.summaryUrl))
         }
     }
 }

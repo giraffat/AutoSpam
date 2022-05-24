@@ -7,6 +7,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import dataClasses.*
 import dataClasses.AnimationStates.*
@@ -25,7 +26,7 @@ object MainViewWidgets {
         Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 TextField(modifier = Modifier.weight(1f),
-                    label = { Text("间隙（秒）") },
+                    label = { Text("间隙（秒）*") },
                     isError = errors.isIntervalError,
                     enabled = isEnabled,
                     maxLines = 1,
@@ -53,6 +54,7 @@ object MainViewWidgets {
         uiStates: UiStates = UiStates(),
         getSpamOptions: () -> SpamOptions,
         completedTimes: Long,
+        openSummaryInBrowser: () -> Unit,
         onStartButtonClick: () -> Unit,
         onCancelButtonClick: () -> Unit,
     ) {
@@ -61,7 +63,9 @@ object MainViewWidgets {
                 Column {
                     Crossfade(uiStates.state) {
                         Text(
-                            modifier = Modifier.padding(8.dp), text = when (uiStates.state) {
+                            color = Color.Black.copy(alpha = 0.87f),
+                            modifier = Modifier.padding(8.dp),
+                            text = when (uiStates.state) {
                                 Default -> "准备就绪"
                                 States.Waiting -> "等待中"
                                 States.Spamming -> "刷屏中（第${completedTimes}次）"
@@ -93,16 +97,17 @@ object MainViewWidgets {
             }
         }
 
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = if (uiStates.isCanceledButton) onCancelButtonClick else onStartButtonClick
-        ) {
-            Crossfade(uiStates.isCanceledButton) {
-                if (uiStates.isCanceledButton) {
-                    Text("取消")
-                } else {
-                    Text("启动")
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                modifier = Modifier.weight(0.8f),
+                onClick = if (uiStates.isCanceledButton) onCancelButtonClick else onStartButtonClick
+            ) {
+                Crossfade(uiStates.isCanceledButton) {
+                    Text(color = Color.White.copy(alpha = 0.87f), text = if (uiStates.isCanceledButton) "取消" else "启动")
                 }
+            }
+            Button(modifier = Modifier.weight(0.2f), onClick = openSummaryInBrowser) {
+                Text(color = Color.White.copy(alpha = 0.87f), text = "介绍")
             }
         }
     }

@@ -38,6 +38,7 @@ object MainView {
                         uiStates = viewModel.uiStates,
                         getSpamOptions = viewModel::spamOptions,
                         completedTimes = viewModel.completedTimes,
+                        openSummaryInBrowser = viewModel::openSummaryInBrowser,
                         onStartButtonClick = viewModel::start,
                         onCancelButtonClick = viewModel::cancel
                     )
