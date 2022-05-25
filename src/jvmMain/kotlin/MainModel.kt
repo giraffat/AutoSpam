@@ -69,7 +69,13 @@ class MainModel {
         }
     }
 
-    fun convertIntervalString(intervalString: String) = (intervalString.toFloat() * 1000).toULong()
+    fun convertIntervalString(intervalString: String): ULong {
+        val interval = (intervalString.toFloat() * 1000).toULong()
+        if (interval == 0UL){
+            throw java.lang.NumberFormatException()
+        }
+        return interval
+    }
 
     fun convertMaxTimesString(maxTimesString: String): ULong {
         val maxTimes = maxTimesString.toULong()
