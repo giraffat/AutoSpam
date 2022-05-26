@@ -2,7 +2,7 @@
 
 ## 简介
 
-* 这是一个用来在各种地方刷屏的电脑程序 [下载链接]("https://baidu.com") [源代码](https://baidu.com)
+* 这是一个用来在各种地方刷屏的电脑程序，[主页](https://giraffat.xyz/autoSpam)
 
   ![screenshot](./screenshot.png)
 
