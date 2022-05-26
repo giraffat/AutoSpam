@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.example"
-version = "1.0-SNAPSHOT"
+version = "1.0.1"
 
 repositories {
     google()
@@ -38,7 +38,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "AutoSpamCompose"
-            packageVersion = "1.0.0"
+            packageVersion = "1.0.1"
 
             windows {
                 shortcut = true
