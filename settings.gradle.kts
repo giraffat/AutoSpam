@@ -13,5 +13,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = "AutoSpamCompose"
+rootProject.name = "AutoSpam"
 
