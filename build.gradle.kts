@@ -1,5 +1,6 @@
 import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -7,7 +8,7 @@ plugins {
 }
 
 group = "com.example"
-version = "1.0-SNAPSHOT"
+version = "1.0.3"
 
 repositories {
     google()
@@ -37,12 +38,12 @@ compose.desktop {
         mainClass = "MainViewKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
-            packageName = "AutoSpamCompose"
-            packageVersion = "1.0.0"
+            packageName = "自动刷屏"
+            packageVersion = "1.0.3"
 
-            windows {
+            windows{
                 shortcut = true
-                iconFile.set(project.file("icon.ico"))
+                iconFile.set(project.file("src/jvmMain/resources/icon.ico"))
             }
         }
     }
