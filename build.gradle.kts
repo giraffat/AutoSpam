@@ -34,11 +34,16 @@ kotlin {
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "MainViewKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "AutoSpamCompose"
             packageVersion = "1.0.0"
+
+            windows {
+                shortcut = true
+                iconFile.set(project.file("icon.ico"))
+            }
         }
     }
 }
