@@ -1,6 +1,5 @@
 import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -41,7 +40,7 @@ compose.desktop {
             packageName = "自动刷屏"
             packageVersion = "1.0.3"
 
-            windows{
+            windows {
                 shortcut = true
                 iconFile.set(project.file("src/jvmMain/resources/icon.ico"))
             }
