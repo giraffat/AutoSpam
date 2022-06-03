@@ -1,9 +1,9 @@
 object InputSpamOptionsConverter {
-    class EmptyInputException : Exception()
+    class InputIsEmptyException : Exception()
 
     fun interval(inputInterval: String): Long {
         if (inputInterval == "") {
-            throw EmptyInputException()
+            throw InputIsEmptyException()
         }
 
         val interval: Long
@@ -29,7 +29,7 @@ object InputSpamOptionsConverter {
 
     fun maxTimes(inputMaxTimes: String): Int {
         if (inputMaxTimes == "") {
-            throw EmptyInputException()
+            throw InputIsEmptyException()
         }
 
         val maxTimes: Int
@@ -53,5 +53,5 @@ object InputSpamOptionsConverter {
     }
 
     fun spamText(inputSpamText: String): String =
-        if (inputSpamText == "") throw EmptyInputException() else inputSpamText
+        if (inputSpamText == "") throw InputIsEmptyException() else inputSpamText
 }

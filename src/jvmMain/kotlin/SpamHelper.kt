@@ -9,7 +9,7 @@ object SpamHelper {
 
     fun copy(text: String) = Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(text), null)
 
-    fun spamOnce() {
+    private fun spamOnce() {
         robot.keyPress(KeyEvent.VK_CONTROL)
         robot.keyPress(KeyEvent.VK_V)
         robot.keyRelease(KeyEvent.VK_V)
@@ -18,7 +18,7 @@ object SpamHelper {
         robot.keyRelease(KeyEvent.VK_ENTER)
     }
 
-    suspend fun spam(interval: Long, maxTimes: Int, completedTimesChanged: (Int) -> Unit = {}) =
+    suspend fun spam(interval: Long, maxTimes: Int, completedTimesChanged: (Int) -> Unit) =
         withContext(Dispatchers.Default)
         {
             for (i in 1..maxTimes) {
@@ -33,7 +33,7 @@ object SpamHelper {
             }
         }
 
-    suspend fun spam(interval: Long, completedTimesChanged: (Int) -> Unit = {}) = withContext(Dispatchers.Default)
+    suspend fun spam(interval: Long, completedTimesChanged: (Int) -> Unit) = withContext(Dispatchers.Default)
     {
         var completedTimes = 0
 

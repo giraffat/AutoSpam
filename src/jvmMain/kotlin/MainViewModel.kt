@@ -64,7 +64,7 @@ class MainViewModel {
             interval = InputSpamOptionsConverter.interval(inputInterval)
         } catch (e: NumberFormatException) {
             inputIntervalError = e.message
-        } catch (e: InputSpamOptionsConverter.EmptyInputException) {
+        } catch (e: InputSpamOptionsConverter.InputIsEmptyException) {
             inputIntervalError = "输入不能为空"
         }
 
@@ -72,7 +72,7 @@ class MainViewModel {
             maxTimes = InputSpamOptionsConverter.maxTimes(inputMaxTimes)
         } catch (e: NumberFormatException) {
             inputMaxTimesError = e.message
-        } catch (e: InputSpamOptionsConverter.EmptyInputException) {
+        } catch (e: InputSpamOptionsConverter.InputIsEmptyException) {
             inputMaxTimesError = "输入不能为空"
         }
 
@@ -90,7 +90,9 @@ class MainViewModel {
         state = UiState.LimitedSpamming(0, interval * maxTimes)
 
         try {
-            SpamHelper.spam(interval, maxTimes)
+            SpamHelper.spam(interval, maxTimes) {
+                state = UiState.LimitedSpamming(it.toLong(), interval * maxTimes)
+            }
         } catch (e: CancellationException) {
             resetProgress()
             resetState()
@@ -104,7 +106,9 @@ class MainViewModel {
         state = UiState.UnlimitedSpamming(0)
 
         try {
-            SpamHelper.spam(interval)
+            SpamHelper.spam(interval) {
+                state = UiState.UnlimitedSpamming(it.toLong())
+            }
         } catch (e: CancellationException) {
             resetProgress()
             resetState()
@@ -119,6 +123,13 @@ class MainViewModel {
         }
     }
 
+    private fun copyIfInputSpamTextIsNotEmpty() {
+        try {
+            SpamHelper.copy(InputSpamOptionsConverter.spamText(inputSpamText))
+        } catch (_: InputSpamOptionsConverter.InputIsEmptyException) {
+        }
+    }
+
     suspend fun start() {
         resetErrors()
         val (interval, maxTimes) = spamOptions()
@@ -126,6 +137,7 @@ class MainViewModel {
 
         wait()
         resetProgress()
+        copyIfInputSpamTextIsNotEmpty()
         if (maxTimes != null) {
             spam(interval, maxTimes)
         } else {
