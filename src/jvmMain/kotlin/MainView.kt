@@ -144,8 +144,16 @@ class MainView {
     @Composable
     @Preview
     fun App() {
-        MaterialTheme {
-            Column(modifier = Modifier.background(Color(0xffeceff1))) {
+        val colors = MaterialTheme.colors.copy(
+            primary = Color(0xff0d47a1),
+            primaryVariant = Color(0xff002171),
+            secondary = Color(0xff004d40),
+            secondaryVariant = Color(0xff39796b),
+            background = Color(0xffeceff1)
+        )
+
+        MaterialTheme(colors) {
+            Column(modifier = Modifier.background(MaterialTheme.colors.background)) {
                 Divider(modifier = Modifier.shadow(2.dp))
 
                 Column(
