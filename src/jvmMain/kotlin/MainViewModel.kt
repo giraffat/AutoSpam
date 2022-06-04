@@ -1,9 +1,10 @@
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.*
-import java.awt.Desktop
-import java.net.URI
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 sealed class UiState {
     object Default : UiState()
@@ -123,12 +124,6 @@ class MainViewModel {
                 resetProgress()
                 resetState()
             }
-        }
-    }
-
-    fun openSummaryInBrowser() {
-        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-            Desktop.getDesktop().browse(URI("https://giraffat.xyz/AutoSpam"))
         }
     }
 }

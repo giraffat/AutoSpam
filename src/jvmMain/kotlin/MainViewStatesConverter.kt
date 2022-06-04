@@ -46,7 +46,7 @@ class MainViewStatesConverter {
         is UiState.Waiting -> true
     }
 
-    fun buttonAction(state: UiState,start: () -> Unit, cancel: () -> Unit) = if (isWorking(state)) cancel else start
+    fun buttonAction(state: UiState, start: () -> Unit, cancel: () -> Unit) = if (isWorking(state)) cancel else start
 
     fun buttonText(state: UiState) = if (isWorking(state)) "取消" else "启动"
 }

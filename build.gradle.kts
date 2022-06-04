@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.example"
-version = "1.0.3"
+version = "1.0.4"
 
 repositories {
     google()
@@ -28,7 +28,6 @@ kotlin {
                 implementation(compose.desktop.currentOs)
             }
         }
-        val jvmTest by getting
     }
 }
 
@@ -38,7 +37,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "自动刷屏"
-            packageVersion = "1.0.3"
+            packageVersion = "1.0.4"
 
             windows {
                 shortcut = true

@@ -117,10 +117,7 @@ class MainView {
                 workingJob?.cancel()
             }
         }
-
-        @Composable
-        fun RowScope.ControlButton() = Button(
-            modifier = Modifier.weight(1f),
+        Button(
             onClick = statesConverter.buttonAction(viewModel.state,
                 { workingJob = scope.launch { viewModel.start() } },
                 { workingJob!!.cancel() })
@@ -128,16 +125,6 @@ class MainView {
             Crossfade(statesConverter.buttonText(viewModel.state)) {
                 Text(statesConverter.buttonText(viewModel.state))
             }
-        }
-
-        @Composable
-        fun OpenSummaryButton() = Button(onClick = viewModel::openSummaryInBrowser) {
-            Text("介绍")
-        }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ControlButton()
-            OpenSummaryButton()
         }
     }
 
