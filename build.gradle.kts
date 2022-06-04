@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.example"
-version = "1.0.4"
+version = "1.0.5"
 
 repositories {
     google()
@@ -37,7 +37,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "自动刷屏"
-            packageVersion = "1.0.4"
+            packageVersion = "1.0.5"
 
             windows {
                 shortcut = true

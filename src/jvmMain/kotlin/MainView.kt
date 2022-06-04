@@ -118,6 +118,7 @@ class MainView {
             }
         }
         Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = statesConverter.buttonAction(viewModel.state,
                 { workingJob = scope.launch { viewModel.start() } },
                 { workingJob!!.cancel() })
