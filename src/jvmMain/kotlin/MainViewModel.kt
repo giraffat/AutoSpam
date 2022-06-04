@@ -36,25 +36,15 @@ class MainViewModel {
 
     private fun resetState() {
         state = UiState.Default
+        println()
     }
 
     private suspend fun wait() {
-        try {
-            state = UiState.Waiting(4000)
-            delay(4000)
-        } catch (e: CancellationException) {
-            resetProgress()
-            resetState()
-        }
-
+        state = UiState.Waiting(4000)
+        delay(4000)
     }
 
-    private fun resetErrors() {
-        inputIntervalError = null
-        inputMaxTimesError = null
-    }
-
-    data class SpamOptions(val interval: Long, val maxTimes: Int?)
+    data class SpamOptions(val interval: Long?, val maxTimes: Int?)
 
     private fun spamOptions(): SpamOptions {
         var interval: Long? = null
@@ -73,78 +63,67 @@ class MainViewModel {
         } catch (e: NumberFormatException) {
             inputMaxTimesError = e.message
         } catch (e: InputSpamOptionsConverter.InputIsEmptyException) {
-            inputMaxTimesError = "输入不能为空"
+//            inputMaxTimesError = "输入不能为空"
         }
 
-        return SpamOptions(interval!!, maxTimes)
-    }
-
-    private suspend fun checkMousePosition() = CoroutineScope(Dispatchers.IO).launch {
-        MousePositionChecker.checkMousePosition {
-            throw CancellationException()
-        }
+        return SpamOptions(interval, maxTimes)
     }
 
     private suspend fun spam(interval: Long, maxTimes: Int) {
-        val checkingMousePositionJob: Job = checkMousePosition()
         state = UiState.LimitedSpamming(0, interval * maxTimes)
-
-        try {
-            SpamHelper.spam(interval, maxTimes) {
-                state = UiState.LimitedSpamming(it.toLong(), interval * maxTimes)
-            }
-        } catch (e: CancellationException) {
-            resetProgress()
-            resetState()
-        } finally {
-            checkingMousePositionJob.cancel()
+        SpamHelper.spam(interval, maxTimes) {
+            state = UiState.LimitedSpamming(it.toLong(), interval * maxTimes)
         }
     }
 
     private suspend fun spam(interval: Long) {
-        val checkingMousePositionJob: Job = checkMousePosition()
         state = UiState.UnlimitedSpamming(0)
 
-        try {
-            SpamHelper.spam(interval) {
-                state = UiState.UnlimitedSpamming(it.toLong())
-            }
-        } catch (e: CancellationException) {
-            resetProgress()
-            resetState()
-        } finally {
-            checkingMousePositionJob.cancel()
-        }
-    }
-
-    private fun cancelIfError() {
-        if (inputIntervalError != null || inputMaxTimesError != null) {
-            throw CancellationException()
-        }
-    }
-
-    private fun copyIfInputSpamTextIsNotEmpty() {
-        try {
-            SpamHelper.copy(InputSpamOptionsConverter.spamText(inputSpamText))
-        } catch (_: InputSpamOptionsConverter.InputIsEmptyException) {
+        SpamHelper.spam(interval) {
+            state = UiState.UnlimitedSpamming(it.toLong())
         }
     }
 
     suspend fun start() {
+        fun resetErrors() {
+            inputIntervalError = null
+            inputMaxTimesError = null
+        }
+
+        fun cancelIfError() {
+            if (inputIntervalError != null || inputMaxTimesError != null) {
+                throw CancellationException()
+            }
+        }
+
+        fun copyIfInputSpamTextIsNotEmpty() {
+            try {
+                SpamHelper.copy(InputSpamOptionsConverter.spamText(inputSpamText))
+            } catch (_: InputSpamOptionsConverter.InputIsEmptyException) {
+            }
+        }
+
         resetErrors()
         val (interval, maxTimes) = spamOptions()
         cancelIfError()
 
-        wait()
-        resetProgress()
-        copyIfInputSpamTextIsNotEmpty()
-        if (maxTimes != null) {
-            spam(interval, maxTimes)
-        } else {
-            spam(interval)
+        try {
+            wait()
+            resetProgress()
+            copyIfInputSpamTextIsNotEmpty()
+            if (maxTimes != null) {
+                spam(interval!!, maxTimes)
+            } else {
+                spam(interval!!)
+            }
+            resetProgress()
+            resetState()
+        } catch (e: CancellationException) {
+            withContext(NonCancellable) {
+                resetProgress()
+                resetState()
+            }
         }
-        resetProgress()
-        resetState()
     }
 
     fun openSummaryInBrowser() {

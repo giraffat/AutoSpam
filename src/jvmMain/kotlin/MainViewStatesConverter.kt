@@ -31,7 +31,7 @@ class MainViewStatesConverter {
     fun progressAnimationDuration(state: UiState): Int? = when (state) {
         UiState.Default -> null
         is UiState.LimitedSpamming -> state.estimateTime.toInt()
-        is UiState.Resetting -> 250
+        is UiState.Resetting -> state.time.toInt()
         is UiState.UnlimitedSpamming -> null
         is UiState.Waiting -> state.waitTime.toInt()
     }

@@ -1,4 +1,3 @@
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import java.awt.MouseInfo
 
@@ -12,7 +11,6 @@ object MousePositionChecker {
         while (true) {
             if (this.mouseIsOnLeftTop()) {
                 mouseIsOnLeftTop()
-                throw CancellationException()
             }
             delay(500L)
         }

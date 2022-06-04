@@ -6,9 +6,7 @@ import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -29,36 +27,60 @@ class MainView {
     @Composable
     private fun SpamOptionsTextFields() {
         @Composable
-        fun RowScope.IntervalTextField() = TextField(
-            modifier = Modifier.weight(1f),
-            label = { Text("间隙（秒）*") },
-            isError = viewModel.inputIntervalError != null,
-            enabled = statesConverter.isTextFieldsEnabled(viewModel.state),
-            maxLines = 1,
-            value = viewModel.inputInterval,
-            onValueChange = { viewModel.inputInterval = it })
+        fun RowScope.IntervalTextField() {
+            Column(modifier = Modifier.weight(1f)) {
+                TextField(
+                    label = { Text("间隙（秒）*") },
+                    isError = viewModel.inputIntervalError != null,
+                    enabled = statesConverter.isTextFieldsEnabled(viewModel.state),
+                    maxLines = 1,
+                    value = viewModel.inputInterval,
+                    onValueChange = { viewModel.inputInterval = it })
+                Text(
+                    modifier = Modifier.padding(16.dp, 4.dp, 16.dp, 0.dp),
+                    color = MaterialTheme.colors.error,
+                    style = MaterialTheme.typography.caption,
+                    text = viewModel.inputIntervalError ?: ""
+                )
+            }
+        }
+
 
         @Composable
-        fun RowScope.MaxTimesTextField() = TextField(modifier = Modifier.weight(1f),
-            label = { Text("刷屏次数") },
-            isError = viewModel.inputMaxTimesError != null,
-            enabled = statesConverter.isTextFieldsEnabled(viewModel.state),
-            maxLines = 1,
-            value = viewModel.inputMaxTimes,
-            onValueChange = { viewModel.inputMaxTimes = it })
+        fun RowScope.MaxTimesTextField() {
+            Column(modifier = Modifier.weight(1f)) {
+                TextField(
+                    label = { Text("刷屏次数") },
+                    isError = viewModel.inputMaxTimesError != null,
+                    enabled = statesConverter.isTextFieldsEnabled(viewModel.state),
+                    maxLines = 1,
+                    value = viewModel.inputMaxTimes,
+                    onValueChange = { viewModel.inputMaxTimes = it })
+                Text(
+                    modifier = Modifier.padding(16.dp, 4.dp, 16.dp, 0.dp),
+                    color = MaterialTheme.colors.error,
+                    style = MaterialTheme.typography.caption,
+                    text = viewModel.inputMaxTimesError ?: ""
+                )
+            }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        }
+
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp))
+        {
             IntervalTextField()
             MaxTimesTextField()
         }
     }
 
     @Composable
-    private fun ColumnScope.SpamTextTextField() = TextField(modifier = Modifier.weight(1f).fillMaxWidth(),
-        label = { Text("刷屏内容") },
-        enabled = statesConverter.isTextFieldsEnabled(viewModel.state),
-        value = viewModel.inputSpamText,
-        onValueChange = { viewModel.inputSpamText = it })
+    private fun ColumnScope.SpamTextTextField() {
+        TextField(modifier = Modifier.weight(1f).fillMaxWidth(),
+            label = { Text("刷屏内容") },
+            enabled = statesConverter.isTextFieldsEnabled(viewModel.state),
+            value = viewModel.inputSpamText,
+            onValueChange = { viewModel.inputSpamText = it })
+    }
 
     @Composable
     private fun StateCard() = Card(modifier = Modifier.fillMaxWidth(), elevation = 2.dp) {
@@ -88,7 +110,13 @@ class MainView {
     @Composable
     private fun ControllerButtons() {
         val scope = rememberCoroutineScope()
-        var workingJob: Job? = null
+        var workingJob: Job? by remember { mutableStateOf(null) }
+
+        LaunchedEffect(0) {
+            MousePositionChecker.checkMousePosition {
+                workingJob?.cancel()
+            }
+        }
 
         @Composable
         fun RowScope.ControlButton() = Button(
